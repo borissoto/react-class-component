@@ -1,17 +1,43 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import * as serviceWorker from './serviceWorker';
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
-);
+class App extends React.Component {
+  constructor(props) {
+    super(props);
 
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.unregister();
+    // THIS IS TEH ONLY TIME we do direct assignment to this.state
+    this.state = { lat: null, errorMessage: '' };
+
+    window.navigator.geolocation.getCurrentPosition(
+      (position) => {
+        // We call setState !!!!!!!!
+        this.setState({ lat: position.coords.latitude });
+
+        // We did not like below!!!!!
+        // this.state.lat = position.coords.latitude
+      },
+      (err) => {
+        this.setState({ errorMessage: err.message });
+      }
+    );
+  }
+
+  //  React says we have to define render!!!!!!
+  render() {
+    //   <div>
+    //     Latitude: {this.state.lat}
+    //     <br />
+    //     Error: {this.state.errorMessage}
+    //   </div>
+    if (this.state.errorMessage && !this.state.lat) {
+      return <div>Error: {this.state.errorMessage}</div>;
+    }
+    if (!this.state.errorMessage && this.state.lat) {
+      return <div>Latitud: {this.state.lat}</div>;
+    }
+
+    return <div>Loading... </div>;
+  }
+}
+
+ReactDOM.render(<App />, document.querySelector('#root'));
